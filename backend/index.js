@@ -196,6 +196,19 @@ Admin, BloodSystem Management System`
   });
 });
 
-app.listen(3002, () => {
-  console.log("Server running on port 3002");
+// Dynamic port allocation for Google Cloud Run
+// Change the fallback port from 3002 to 8080
+const PORT = process.env.PORT || 8080;
+const path = require("path");
+
+// Point Express to your frontend build folder
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+// If a user types in any website route, hand them your main React interface
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
