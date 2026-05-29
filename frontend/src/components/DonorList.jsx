@@ -24,14 +24,12 @@ const DonorList = () => {
     fetchDonors();
   }, []);
 
-  // FIXED: Closed this function properly with curly braces
   const fetchDonors = () => {
     axios.get(`${API_BASE_URL}/view`)
       .then((res) => { setDonors(res.data); })
       .catch((err) => { console.log("Error loading donor profiles:", err); });
   };
 
-  // FIXED: Cleaned up the template literal syntax using backticks correctly
   const deleDonor = (id) => {
     if (window.confirm("Are you sure you want to delete this donor permanently?")) {
       axios.delete(`${API_BASE_URL}/delete/${id}`)
@@ -43,20 +41,25 @@ const DonorList = () => {
     }
   };
 
-  // UPDATED: Now correctly points to your Google Cloud API instead of Render
+  // UPDATED: Uses the client-side mailto flow to bypass cloud firewall SMTP port blocks
   const sendEmailRequest = (donor) => {
-    axios.post(`${API_BASE_URL}/send-request-email`, {
-      email: donor.email,
-      ename: donor.ename,
-      bloodGroup: donor.bloodGroup
-    })
-    .then(() => {
-      setAlertState({ open: true, message: `Request email sent to ${donor.ename}!`, severity: "success" });
-    })
-    .catch((err) => {
-      console.log(err);
-      setAlertState({ open: true, message: "Failed to send email request alert.", severity: "error" });
-    });
+    const subject = encodeURIComponent("Urgent: Blood Donation Request - BloodSystem");
+    const body = encodeURIComponent(`Dear ${donor.ename},
+
+There is an urgent requirement for your blood group (${donor.bloodGroup}) at our affiliated hospital. 
+
+Because you are registered as an eligible donor in our BloodSystem, we are reaching out to ask if you are currently available to donate.
+
+If you are able to assist, please reply to this email or visit the hospital at your earliest convenience. Your contribution can save a life today.
+
+Best regards,
+Admin, BloodSystem Management System`);
+
+    // Directly opens the user's local email app (Gmail/Outlook) prefilled with donor details
+    window.location.href = `mailto:${donor.email}?subject=${subject}&body=${body}`;
+    
+    // Shows your beautiful green notification bar instantly
+    setAlertState({ open: true, message: `Opening mail client for ${donor.ename}!`, severity: "success" });
   };
 
   return (
