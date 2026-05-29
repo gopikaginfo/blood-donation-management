@@ -172,7 +172,7 @@ const path = require("path");
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 // If a user types in any website route, hand them your main React interface
-app.get("*", (req, res) => {
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
 
