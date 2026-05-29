@@ -10,7 +10,7 @@ const DonorList = () => {
   const [currentUserEmail, setCurrentUserEmail] = useState("");
   const [alertState, setAlertState] = useState({ open: false, message: "", severity: "success" });
 
-  // Define your base API URL here so it's clean and easy to change later if needed
+  // Connected straight to your live Render backend service instance
   const API_BASE_URL = "https://blood-donor-backend-z8fw.onrender.com";
 
   useEffect(() => {
@@ -41,25 +41,22 @@ const DonorList = () => {
     }
   };
 
-  // UPDATED: Uses the client-side mailto flow to bypass cloud firewall SMTP port blocks
+  // FIXED: Now triggers the background cloud database routing invisibly
   const sendEmailRequest = (donor) => {
-    const subject = encodeURIComponent("Urgent: Blood Donation Request - BloodSystem");
-    const body = encodeURIComponent(`Dear ${donor.ename},
+    setAlertState({ open: true, message: `Sending automated alert to ${donor.ename}...`, severity: "info" });
 
-There is an urgent requirement for your blood group (${donor.bloodGroup}) at our affiliated hospital. 
-
-Because you are registered as an eligible donor in our BloodSystem, we are reaching out to ask if you are currently available to donate.
-
-If you are able to assist, please reply to this email or visit the hospital at your earliest convenience. Your contribution can save a life today.
-
-Best regards,
-Admin, BloodSystem Management System`);
-
-    // Directly opens the user's local email app (Gmail/Outlook) prefilled with donor details
-    window.location.href = `mailto:${donor.email}?subject=${subject}&body=${body}`;
-    
-    // Shows your beautiful green notification bar instantly
-    setAlertState({ open: true, message: `Opening mail client for ${donor.ename}!`, severity: "success" });
+    axios.post(`${API_BASE_URL}/send-request-email`, {
+      email: donor.email,
+      ename: donor.ename,
+      bloodGroup: donor.bloodGroup
+    })
+    .then(() => {
+      setAlertState({ open: true, message: `Request email sent to ${donor.ename} successfully!`, severity: "success" });
+    })
+    .catch((err) => {
+      console.log(err);
+      setAlertState({ open: true, message: "Failed to send email request alert.", severity: "error" });
+    });
   };
 
   return (
