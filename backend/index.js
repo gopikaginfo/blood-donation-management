@@ -41,9 +41,7 @@ app.post("/login-check", async (req, res) => {
       return res.status(400).send("Email is required");
     }
 
-    // 1. Check if Admin Login option was chosen on the frontend layout
     if (role === "admin") {
-      // Secure layout verification for Master Admin email and credentials
       if (email.toLowerCase() === "gopikag.info@gmail.com" && password === "admin123") {
         return res.status(200).json({ 
           message: "Admin login successful", 
@@ -56,7 +54,6 @@ app.post("/login-check", async (req, res) => {
       }
     }
 
-    // 2. Default fallback: Check if standard User Login option was chosen
     const existingDonor = await donor.findOne({ email: email });
 
     if (existingDonor) {
@@ -104,26 +101,15 @@ app.put("/update-status/:id", async (req, res) => {
   }
 });
 
-// ====================================================================
-// NEW: API to update ALL profile details for inline editing
-// ====================================================================
+// API to update ALL profile details for inline editing
 app.put("/update-profile/:id", async (req, res) => {
   try {
     const { ename, email, bloodGroup, location, phone, age, weight, status } = req.body;
     
     const updatedProfile = await donor.findByIdAndUpdate(
       req.params.id,
-      {
-        ename,
-        email,
-        bloodGroup,
-        location,
-        phone,
-        age,
-        weight,
-        status
-      },
-      { new: true } // Returns the newly modified document object
+      { ename, email, bloodGroup, location, phone, age, weight, status },
+      { new: true }
     );
 
     if (!updatedProfile) {
@@ -148,7 +134,9 @@ app.delete("/delete/:id", async (req, res) => {
   }
 });
 
-// Automated Email Request Configured with your updated Gmail App Password
+// ====================================================================
+// UPDATED: Automated Email Request Using Your Verified Google Script Proxy
+// ====================================================================
 app.post("/send-request-email", async (req, res) => {
   const { email, ename, bloodGroup } = req.body;
 
@@ -156,47 +144,27 @@ app.post("/send-request-email", async (req, res) => {
     return res.status(400).send("Donor email is required");
   }
 
-  // 1. Configure the SMTP Transporter with your updated credentials
-  var transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: "gopikag.info@gmail.com",       // Your Gmail
-      pass: "oafb vkic qtxw xujm"            // Your updated 16-character App Password
-    }
-  });
-
-  // 2. Formulate the official BloodSystem template
-  var mailOptions = {
-    from: '"Admin, BloodSystem Portal" <gopikag.info@gmail.com>',
-    to: email,
-    subject: "Urgent: Blood Donation Request - BloodSystem Management System",
-    text: `Dear ${ename},
-
-We hope this email finds you well.
-
-There is an urgent requirement for your blood group (${bloodGroup}) at our affiliated hospital. Because you are registered as an eligible donor in our BloodSystem, we are reaching out to ask if you are currently available to donate.
-
-If you are able to assist, please visit the hospital at your earliest convenience or reply to this email to coordinate your arrival. Your contribution can save a life today.
-
-Thank you for your continued support and generosity.
-
-Best regards,
-Admin, BloodSystem Management System`
-  };
-
-  // 3. Send the message
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log("Email error: ", error);
-      return res.status(500).send("Failed to send email alert");
-    } else {
-      console.log("Email sent successfully: " + info.response);
+  try {
+    // Bypasses Render's firewall by using a standard HTTPS web request over port 443
+    const response = await fetch("https://script.google.com/macros/s/AKfycbxTQ4gBrFD4jkidc3e_5L4F40vTVaWL557naVYOL3zF7KobFTyHKE7DueTqRp9gaHUh/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, ename, bloodGroup })
+    });
+    
+    if (response.ok) {
+      console.log("Email routed successfully through Google Cloud proxy!");
       return res.status(200).send("Request email sent successfully!");
+    } else {
+      throw new Error("Google Script proxy endpoint returned an unexpected error status");
     }
-  });
+  } catch (error) {
+    console.log("Email routing error: ", error.message);
+    return res.status(500).send("Failed to send email alert");
+  }
 });
 
-// Dynamic port allocation for Google Cloud Run
+// Dynamic port allocation for Google Cloud Run / Render
 const PORT = process.env.PORT || 8080;
 const path = require("path");
 
