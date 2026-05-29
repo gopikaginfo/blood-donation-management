@@ -164,19 +164,15 @@ app.post("/send-request-email", async (req, res) => {
   }
 });
 
-// Dynamic port allocation for Google Cloud Run / Render
+// Dynamic port allocation for Render
 const PORT = process.env.PORT || 8080;
-const path = require("path");
 
-// Point Express to your frontend build folder
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-// If a user types in any website route, hand them your main React interface
+// Clean base API landing route (Completely removes the missing frontend file references)
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  res.send("BloodSystem Full-Stack API Engine Status: ONLINE 🚀");
 });
 
-// Force the port fallback to 8080 and bind to all available incoming network interfaces
+// Bind to port and allow incoming network traffic securely
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running securely on port ${PORT}`);
 });
