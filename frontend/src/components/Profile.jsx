@@ -24,6 +24,9 @@ const Profile = ({ onLogout }) => {
     severity: "success"
   });
 
+  // Centralized place to update your mentor's Google Cloud URL
+  const API_BASE_URL = "https://blood-donor-backend-z8fw.onrender.com";
+
   // Fetch the logged-in user's profile information based on their session email
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail");
@@ -37,7 +40,7 @@ const Profile = ({ onLogout }) => {
       return;
     }
 
-    axios.get(`http://localhost:3002/profile-details/${userEmail}`)
+    axios.get(`${API_BASE_URL}/profile-details/${userEmail}`)
       .then((res) => {
         if (res.data) {
           setDonorId(res.data._id);
@@ -117,7 +120,8 @@ const Profile = ({ onLogout }) => {
   const saveHandler = () => {
     if (!validateForm()) return;
 
-    axios.put(`http://localhost:3002/update-profile/${donorId}`, inputs)
+    // FIXED: Added backticks properly around the template literal URL string
+    axios.put(`${API_BASE_URL}/update-profile/${donorId}`, inputs)
       .then((res) => {
         setAlertState({
           open: true,

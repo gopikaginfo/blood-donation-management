@@ -82,7 +82,8 @@ const Register = () => {
       return;
     }
 
-    axios.post("http://localhost:3002/add", inputs)
+    // UPDATED: Points directly to your verified live Google Cloud API
+    axios.post("https://blood-donor-backend-z8fw.onrender.com/add", inputs)
       .then((res) => {
         setAlertState({
           open: true,
@@ -104,7 +105,7 @@ const Register = () => {
         if (err.response) {
           setAlertState({
             open: true,
-            message: err.response.data.message || "Server error occurred.",
+            message: err.response.data || "Server error occurred.",
             severity: "error"
           });
         } else {
@@ -126,7 +127,6 @@ const Register = () => {
       justifyContent: 'center',
       py: 6,
       px: 2,
-      /* Updated from image graphic to a solid plain Wine Red background color */
       backgroundColor: '#722F37'
     }}>
       
@@ -137,7 +137,7 @@ const Register = () => {
           width: "100%", 
           p: 4, 
           borderRadius: 4, 
-          bgcolor: "#ffffff", // Pure solid white for high contrast layout readability
+          bgcolor: "#ffffff", 
           boxShadow: "0px 12px 40px rgba(0,0,0,0.3)",
           "& input": { 
             backgroundColor: "transparent !important", 

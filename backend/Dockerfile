@@ -10,7 +10,7 @@ COPY package*.json ./
 # Install production dependencies
 RUN npm install --production
 
-# Copy the rest of your backend source code files
+# FIX: Kept this exactly on a single line with a trailing space and dot
 COPY . .
 
 # Expose port 8080 for Google Cloud Run

@@ -197,7 +197,6 @@ Admin, BloodSystem Management System`
 });
 
 // Dynamic port allocation for Google Cloud Run
-// Change the fallback port from 3002 to 8080
 const PORT = process.env.PORT || 8080;
 const path = require("path");
 
@@ -209,6 +208,7 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
 
-app.listen(PORT, () => {
+// Force the port fallback to 8080 and bind to all available incoming network interfaces
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });

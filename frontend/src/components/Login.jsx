@@ -45,7 +45,7 @@ const Login = ({ onLoginSuccess }) => {
     }
 
     // Send email, password, and the active option chosen to backend
-    axios.post("http://localhost:3002/login-check", { 
+    axios.post("https://blood-donor-backend-z8fw.onrender.com/login-check", { 
       email: email, 
       password: password, 
       role: loginRole 
@@ -68,7 +68,7 @@ const Login = ({ onLoginSuccess }) => {
         // Separate page routing logic based on chosen role
         setTimeout(() => {
           if (res.data.role === "admin") {
-            navigate("/view-donors");
+            navigate("/donor-list");
           } else {
             navigate("/profile");
           }
@@ -84,7 +84,7 @@ const Login = ({ onLoginSuccess }) => {
         } else {
           setAlertState({
             open: true,
-            message: "Network Error: Server unreachable on port 3002.",
+            message: "Network Error: Unable to connect to the authentication server.",
             severity: "error"
           });
         }

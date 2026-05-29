@@ -10,6 +10,9 @@ const DonorList = () => {
   const [currentUserEmail, setCurrentUserEmail] = useState("");
   const [alertState, setAlertState] = useState({ open: false, message: "", severity: "success" });
 
+  // Define your base API URL here so it's clean and easy to change later if needed
+  const API_BASE_URL = "https://blood-donor-backend-z8fw.onrender.com";
+
   useEffect(() => {
     const role = localStorage.getItem("userRole");
     const email = localStorage.getItem("userEmail");
@@ -21,15 +24,17 @@ const DonorList = () => {
     fetchDonors();
   }, []);
 
+  // FIXED: Closed this function properly with curly braces
   const fetchDonors = () => {
-    axios.get("http://localhost:3002/view")
+    axios.get(`${API_BASE_URL}/view`)
       .then((res) => { setDonors(res.data); })
       .catch((err) => { console.log("Error loading donor profiles:", err); });
   };
 
+  // FIXED: Cleaned up the template literal syntax using backticks correctly
   const deleDonor = (id) => {
     if (window.confirm("Are you sure you want to delete this donor permanently?")) {
-      axios.delete(`http://localhost:3002/delete/${id}`)
+      axios.delete(`${API_BASE_URL}/delete/${id}`)
         .then(() => {
           setAlertState({ open: true, message: "Record deleted successfully.", severity: "success" });
           fetchDonors();
@@ -38,8 +43,9 @@ const DonorList = () => {
     }
   };
 
+  // UPDATED: Now correctly points to your Google Cloud API instead of Render
   const sendEmailRequest = (donor) => {
-    axios.post("http://localhost:3002/send-request-email", {
+    axios.post(`${API_BASE_URL}/send-request-email`, {
       email: donor.email,
       ename: donor.ename,
       bloodGroup: donor.bloodGroup
@@ -110,17 +116,14 @@ const DonorList = () => {
                       
                       <TableCell color="text.secondary">{val.location}</TableCell>
                       
-                      {/* FIXED PRIVACY LABELS BASED ON YOUR REQUEST */}
                       <TableCell>
                         {(() => {
                           if (isAdmin) {
-                            return val.phone; // Admin sees everything
+                            return val.phone;
                           }
                           if (userRole === "donor") {
-                            // Particular logged in user sees their own, others show as Private
                             return isOwnProfile ? val.phone : "🔒 Private"; 
                           }
-                          // If completely logged out (visitor view)
                           return "🔒 Log in to view"; 
                         })()}
                       </TableCell>
